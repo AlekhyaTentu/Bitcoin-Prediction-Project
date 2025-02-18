@@ -1,4 +1,4 @@
-Bitcoin Price Prediction Using Multi-Source Sentiment Analysis and Machine Learning Techniques
+**Bitcoin Price Prediction Using Multi-Source Sentiment Analysis and Machine Learning Techniques**
 
 Overview
 
