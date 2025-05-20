@@ -1,115 +1,102 @@
-# 📊 Forecasting Bitcoin Price Trends Using Sentiment & Machine Learning
+# 📊 Bitcoin Price Prediction Using Sentiment & Machine Learning
 
-> *DS606 Final Project – Team C*
-
----
-
-## 👨‍💻 Team Members
-- **Alekhya Tentu** (XX77459)  
-- **Vaishnavi Ratheesh Nair** (MQ50131)  
-- **Adarsh Rao Akula** (Jq00578)
+## 👥 Team Members
+- Alekhya Tentu
+- Vaishnavi Ratheesh Nair
+- Adarsh Rao Akula
 
 ---
 
-## 🔗 Dataset Sources
-- 📈 [Bitcoin Price (Yahoo Finance)](https://drive.google.com/file/d/1-1GriZRFxvyLVjKk-X0rlFz1jV3JkLkl/view?usp=drive_link)
-- 📝 [Wikipedia Edit Logs](https://drive.google.com/file/d/1sbacJS3elda251tpyiE0Hw3uSoZJVc_K/view?usp=drive_link)
-- 🗞️ [The Guardian News Articles](https://drive.google.com/file/d/1--FJI3F3keB8f0UvmB-YsGeFcLfH6ZeA/view?usp=drive_link)
+## 📘 Project Overview
+This project aims to forecast Bitcoin's **daily price direction (⬆️/⬇️)** and **value** using a hybrid machine learning pipeline. We integrate traditional financial indicators with **multi-source sentiment analysis** to capture emotional trends that influence crypto markets.
 
 ---
 
-## 📚 Project Overview
+## 📂 Project Structure
 
-We explore whether **public sentiment**, extracted from Wikipedia and news, can improve predictions of **Bitcoin price movements**.
+| Folder        | Description                             |
+|---------------|-----------------------------------------|
+| `notebooks/`  | Jupyter notebooks for EDA & modeling    |
+| `images/`     | Visualizations for plots and charts     |
+| `data/`       | Cleaned datasets                        |
+| `src/`        | Scripts for training, EDA, preprocessing|
+| `Visualization/` | Uploaded images for GitHub rendering |
 
-Our pipeline includes:
-- 5+ years of historical Bitcoin price data
-- Sentiment scoring using **VADER**, **BERT**, and **FinBERT**
+---
+
+## 🔗 Data Sources
+
+- **Bitcoin Price Data**: Yahoo Finance (5 years of OHLCV data)
+- **Wikipedia Edit Logs**: Extracted using MediaWiki API
+- **The Guardian News Articles**: Scraped using Guardian Open API
+- All data sources were merged on date and preprocessed for alignment
+
+---
+
+## 🔄 Process Flow (Pipeline)
+
+### 1️⃣ Data Collection & Cleaning
+- Collected 5 years of Bitcoin data, ~1200 Wikipedia edits, and ~250 Guardian articles
+- Filled missing dates and handled weekend gaps using forward fill
+- Cleaned text for sentiment analysis
+
+### 2️⃣ Exploratory Data Analysis (EDA)
+- Visualized closing price trends and daily returns  
+- Analyzed correlation between price and features  
+📌 *(Insert: SMA Chart, Daily Returns, Correlation Heatmap)*
+
+### 3️⃣ Sentiment Analysis
+- VADER for short texts (Wikipedia edit comments)
+- BERT for full-length articles (Guardian)
+- Created composite scores + 7-day and 30-day rolling sentiment averages  
+📌 *(Insert: Sentiment Distribution Charts)*
+
+### 4️⃣ Feature Engineering
+- Lagged prices: `Close_t-1`, `Close_t-7`
 - Technical indicators: RSI, MACD, Bollinger Bands
-- Classification & Regression modeling: **XGBoost**, **Random Forest**, **LSTM**
+- Sentiment momentum: `sentiment_7day - sentiment_30day`
+- Interaction terms: `sentiment_7day × RSI_14`  
+📌 *(Insert: Feature Importance Plot)*
+
+### 5️⃣ Modeling
+- **XGBoost Classifier** for predicting direction (⬆️ or ⬇️)
+- **LSTM Regressor** for forecasting exact price
+- SMOTE used to address class imbalance
+- Train/test split (80/20) with 5-fold cross-validation
+
+### 6️⃣ Evaluation
+**XGBoost Results:**
+- Accuracy: 62%
+- Recall (UP): 0.67
+- F1 Score (UP): 0.53
+
+**LSTM Results:**
+- RMSE: ~78,000
+📌 *(Insert: Actual vs Predicted Chart)*
 
 ---
 
-## 🔍 Exploratory Data Analysis (EDA)
+## 📈 Key Visualizations
+- 📉 Bitcoin closing price + SMA  
+- 🔥 Daily return distribution  
+- 📊 Correlation heatmap  
+- 💬 Sentiment feature distributions  
+- 🧠 XGBoost feature importance  
+- 🎯 Actual vs. Predicted price comparison  
 
-- 📉 30-day SMA reveals key price cycles  
-- 📰 News & Wikipedia article frequency spikes align with volatility  
-- 😐 Sentiment distributions remain stable but shift near price shocks  
-- 📈 Key indicators: RSI, MACD, Bollinger Bands, Volume  
-
-> 🔎 See outputs in: [📂 Visualization Folder](./Visualization)
-
----
-
-## ⚙️ Methodology
-
-### 🧭 Approach
-- **Classification** → Will the price go ⬆️ or ⬇️ tomorrow?
-- **Regression** → Predict the actual next-day price value
-
-### 🧠 Models Used
-- **Classification**: Logistic Regression, Random Forest, XGBoost  
-- **Regression**: Linear Regression, LSTM
-
-### 📊 Features
-- Composite sentiment (VADER + BERT)
-- Technical indicators: RSI, MACD, Bollinger Bands, price lags
-- Rolling sentiment stats: 7-day, 30-day, momentum
-- Interaction terms: e.g., `sentiment_7day × RSI_14`
+*(You can find all images in `Visualization/` folder)*
 
 ---
 
-## 📈 Performance & Results
+## 🚀 How to Run the Project
 
-| Model         | Accuracy | RMSE      | Precision (⬆️) | Recall (⬆️) | F1 Score (⬆️) |
-|---------------|----------|-----------|----------------|-------------|---------------|
-| **XGBoost**       | 62%      | N/A       | 0.44           | 0.67        | 0.53          |
-| **Random Forest** | ~61%     | N/A       | 0.45           | 0.64        | 0.52          |
-| **LSTM**          | N/A      | ~78,000   | N/A            | N/A         | N/A           |
+```bash
+# Clone the repository
+git clone https://github.com/AlekhyaTentu/Bitcoin-Prediction-Project.git
+cd Bitcoin-Prediction-Project
 
-✅ Sentiment-augmented features increased **recall and trend detection**  
-⚠️ LSTM captured patterns but underperformed without sufficient data  
-📌 Lag features (e.g., price_t-1) were top predictors
+# Install required libraries
+pip install -r requirements.txt
 
----
-
-## 🧪 Feature Engineering Summary
-
-- `sentiment_7day`, `sentiment_30day`, `sentiment_momentum`  
-- `price_change_pct`, `volatility_7day`, `rolling_avg`  
-- Interaction terms: `sentiment_7day × RSI_14`, `MACD × price_lag_1`  
-
----
-
-## 🚀 Future Work
-
-- Integrate **real-time intraday sentiment** (Twitter, Reddit)
-- Add **CoinDesk** headlines & **on-chain metrics** (e.g., hash rate)
-- Use **SHAP** for interpretability of news impact
-- Deploy with **AWS Lambda** & **Streamlit** dashboard
-
----
-
-## 📁 Project Files
-
-| Type             | File/Folder                                                                 |
-|------------------|------------------------------------------------------------------------------|
-| 📊 Presentation  | [DS606_TeamC_P3Final.pdf](./Presentation%20files/DS606_TeamC_Akula_Tentu_Nair_BitcoinPrediction_P3.pdf) |
-| 📓 Code Notebook | [final_code_file - google_Colab.pdf](./Code/final_code_file%20-%20google_Colab.pdf) |
-| 📂 Visualizations | [Visualization/](./Visualization)                                           |
-| 📂 Datasets      | [data/](./data)                                                              |
-
----
-
-## 📚 References
-
-- **Htay, H. S. et al.** (2025). *Enhancing Bitcoin Price Prediction with Deep Learning.* Applied Sciences, 15(3), 1554.  
-- **Pant, D. R. et al.** (2018). *RNN-based Bitcoin Price Prediction by Twitter Sentiment Analysis.* IEEE ICCCS.  
-- **Pano, T., & Kashef, R.** (2020). *Sentiment Analysis of Bitcoin Tweets.* Big Data and Cognitive Computing.
-
----
-
-## 🔗 GitHub Repository
-
-> Visit the full project here:  
-👉 [github.com/AlekhyaTentu/Bitcoin-Prediction-Project](https://github.com/AlekhyaTentu/Bitcoin-Prediction-Project)
+# Launch notebook
+Jupyter notebook notebooks/final_model_pipeline.ipynb
