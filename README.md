@@ -8,83 +8,104 @@
 ---
 
 ## 📘 Project Overview
-This project aims to forecast Bitcoin's **daily price direction (⬆️/⬇️)** and **value** using a hybrid machine learning pipeline. We integrate traditional financial indicators with **multi-source sentiment analysis** to capture emotional trends that influence crypto markets.
+
+This project aims to predict Bitcoin's **daily price direction (⬆️/⬇️)** and **next-day value** by integrating traditional **technical indicators** with **sentiment signals** extracted from Wikipedia edits and Guardian news articles.  
+We use machine learning models such as **XGBoost** and **LSTM** in a hybrid setup to improve forecast accuracy in volatile cryptocurrency markets.
 
 ---
 
 ## 📂 Project Structure
 
-| Folder        | Description                             |
-|---------------|-----------------------------------------|
-| `notebooks/`  | Jupyter notebooks for EDA & modeling    |
-| `images/`     | Visualizations for plots and charts     |
-| `data/`       | Cleaned datasets                        |
-| `src/`        | Scripts for training, EDA, preprocessing|
-| `Visualization/` | Uploaded images for GitHub rendering |
+| Folder            | Description                                     |
+|-------------------|-------------------------------------------------|
+| `notebooks/`      | Jupyter notebook for EDA and modeling           |
+| `data/`           | Cleaned and merged datasets                     |
+| `src/`            | Python scripts (optional modular components)    |
+| `Visualization/`  | Uploaded charts and key visuals used in README  |
 
 ---
 
 ## 🔗 Data Sources
 
-- **Bitcoin Price Data**: Yahoo Finance (5 years of OHLCV data)
-- **Wikipedia Edit Logs**: Extracted using MediaWiki API
-- **The Guardian News Articles**: Scraped using Guardian Open API
-- All data sources were merged on date and preprocessed for alignment
+- 📈 **Bitcoin OHLCV Data** – Yahoo Finance (2019–2024)
+- 📰 **Guardian Articles** – ~250 scraped using The Guardian Open API
+- 📝 **Wikipedia Edits** – ~1200 records from Bitcoin-related pages
+
+All data was cleaned, merged by date, and forward-filled to account for non-trading days in sentiment streams.
 
 ---
 
-## 🔄 Process Flow (Pipeline)
+## 🔄 Process Flow
 
-### 1️⃣ Data Collection & Cleaning
-- Collected 5 years of Bitcoin data, ~1200 Wikipedia edits, and ~250 Guardian articles
-- Filled missing dates and handled weekend gaps using forward fill
-- Cleaned text for sentiment analysis
+### 1️⃣ Data Cleaning & Preprocessing
+- Filled missing timestamps, removed duplicates.
+- Forward-filled sentiment gaps for non-trading days (weekends/holidays).
 
 ### 2️⃣ Exploratory Data Analysis (EDA)
-- Visualized closing price trends and daily returns  
-- Analyzed correlation between price and features  
-📌 *(Insert: SMA Chart, Daily Returns, Correlation Heatmap)*
 
-### 3️⃣ Sentiment Analysis
-- VADER for short texts (Wikipedia edit comments)
-- BERT for full-length articles (Guardian)
-- Created composite scores + 7-day and 30-day rolling sentiment averages  
-📌 *(Insert: Sentiment Distribution Charts)*
+#### 📉 Bitcoin Price + 30-Day SMA
+![SMA](Visualization/btc_closing_price_sma.png)
 
-### 4️⃣ Feature Engineering
-- Lagged prices: `Close_t-1`, `Close_t-7`
-- Technical indicators: RSI, MACD, Bollinger Bands
-- Sentiment momentum: `sentiment_7day - sentiment_30day`
-- Interaction terms: `sentiment_7day × RSI_14`  
-📌 *(Insert: Feature Importance Plot)*
+#### 📊 Daily Returns Distribution
+![Returns](Visualization/daily_return_plot.png)
 
-### 5️⃣ Modeling
-- **XGBoost Classifier** for predicting direction (⬆️ or ⬇️)
-- **LSTM Regressor** for forecasting exact price
-- SMOTE used to address class imbalance
-- Train/test split (80/20) with 5-fold cross-validation
+#### 🔥 Feature Correlation
+![Heatmap](Visualization/correlation_heatmap.png)
 
-### 6️⃣ Evaluation
-**XGBoost Results:**
-- Accuracy: 62%
-- Recall (UP): 0.67
-- F1 Score (UP): 0.53
-
-**LSTM Results:**
-- RMSE: ~78,000
-📌 *(Insert: Actual vs Predicted Chart)*
+*Key Insight*: Lagged price (`Close_t-1`) had ~0.99 correlation with `tomorrow_price`, supporting its inclusion as a strong predictor.
 
 ---
 
-## 📈 Key Visualizations
-- 📉 Bitcoin closing price + SMA  
-- 🔥 Daily return distribution  
-- 📊 Correlation heatmap  
-- 💬 Sentiment feature distributions  
-- 🧠 XGBoost feature importance  
-- 🎯 Actual vs. Predicted price comparison  
+### 3️⃣ Sentiment Analysis
 
-*(You can find all images in `Visualization/` folder)*
+- VADER applied to short Wikipedia edit comments.
+- BERT used for full-length Guardian articles.
+- Daily sentiment scores were averaged and converted to rolling 7-day and 30-day signals.
+
+#### 💬 Sentiment Feature Distributions
+![Sentiment](Visualization/sentiment_distributions.png)
+
+*Insight*: Rolling sentiment scores had a **higher correlation (~0.60)** with price movement than raw daily sentiment.
+
+---
+
+### 4️⃣ Feature Engineering
+
+- **Lag Features**: `Close_t-1`, `Close_t-7`
+- **Technical Indicators**: RSI, MACD, Bollinger Bands
+- **Sentiment**: 7-day, 30-day averages, momentum (`s7 - s30`)
+- **Interaction Terms**: `sentiment_7day × RSI_14`
+
+#### ⭐ XGBoost Feature Importance
+![Importance](Visualization/feature_importance.png)
+
+---
+
+### 5️⃣ Modeling Approach
+
+| Model        | Task                   | Output             |
+|--------------|------------------------|--------------------|
+| XGBoost      | Classification (⬆️/⬇️) | Price Direction    |
+| LSTM         | Regression              | Next-Day Price     |
+
+- Applied **SMOTE** to balance classes for XGBoost.
+- Used **80/20 train-test split** and **5-fold CV** for validation.
+
+---
+
+## 📈 Model Evaluation
+
+### ✅ XGBoost Classifier
+- Accuracy: **62%**
+- Recall (UP): **0.67**
+- F1 Score (UP): **0.53**
+
+### 📉 LSTM Regressor
+- RMSE: **~78,000**
+- Captured price momentum but underperformed due to volatility.
+
+#### 🎯 Actual vs Predicted Price
+![Prediction](Visualization/actual_vs_predicted.png)
 
 ---
 
@@ -95,8 +116,8 @@ This project aims to forecast Bitcoin's **daily price direction (⬆️/⬇️)*
 git clone https://github.com/AlekhyaTentu/Bitcoin-Prediction-Project.git
 cd Bitcoin-Prediction-Project
 
-# Install required libraries
+# Install required packages
 pip install -r requirements.txt
 
-# Launch notebook
+# Launch the final notebook
 Jupyter notebook notebooks/final_model_pipeline.ipynb
