@@ -9,8 +9,8 @@
 
 ## 📘 Project Overview
 
-This project aims to predict Bitcoin's **daily price direction (⬆️/⬇️)** and **next-day value** by integrating traditional **technical indicators** with **sentiment signals** extracted from Wikipedia edits and Guardian news articles.  
-We use machine learning models such as **XGBoost** and **LSTM** in a hybrid setup to improve forecast accuracy in volatile cryptocurrency markets.
+This project aims to predict Bitcoin's **daily price direction (⬆️/⬇️)** and **next-day closing value** by combining technical indicators with sentiment signals extracted from **Wikipedia edits** and **Guardian news articles**.  
+We implemented both **classification** (direction) and **regression** (price) models using **XGBoost** and **LSTM** to capture different market dynamics.
 
 ---
 
@@ -20,8 +20,8 @@ We use machine learning models such as **XGBoost** and **LSTM** in a hybrid setu
 |-------------------|-------------------------------------------------|
 | `notebooks/`      | Jupyter notebook for EDA and modeling           |
 | `data/`           | Cleaned and merged datasets                     |
-| `src/`            | Scripts for EDA, modeling, and utility functions|
-| `Visualization/`  | Uploaded charts and key visuals used in README  |
+| `src/`            | Scripts for modeling and feature engineering    |
+| `Visualization/`  | Uploaded charts and visualizations              |
 
 ---
 
@@ -31,54 +31,56 @@ We use machine learning models such as **XGBoost** and **LSTM** in a hybrid setu
 - 📰 **Guardian Articles** – ~250 articles via Guardian Open API
 - 📝 **Wikipedia Edits** – ~1200 records scraped using the MediaWiki API
 
-All datasets were time-aligned by date and forward-filled to account for weekends and missing values.
+All datasets were time-aligned and cleaned to ensure consistency across sentiment and price signals.
 
 ---
 
 ## 🔄 Process Flow
 
 ### 1️⃣ Data Cleaning & Preprocessing
-- Filled gaps and forward-filled missing dates
-- Removed outliers and cleaned sentiment text
-- Merged all datasets on a common date index
+- Merged datasets on a daily index
+- Forward-filled missing values
+- Preprocessed text for sentiment analysis
+
+---
 
 ### 2️⃣ Exploratory Data Analysis (EDA)
 
-#### 📉 Bitcoin Price + 30-Day SMA
-![SMA](Visualization/btc_closing_price_sma.png)
+#### 📉 Bitcoin Price + 30-Day SMA  
+![SMA](Visualization/page_8_img_1.png)
 
-#### 📊 Daily Returns Distribution
-![Returns](Visualization/daily_return_plot.png)
+#### 📊 Daily Returns Distribution  
+![Returns](Visualization/page_9_img_1.png)
 
-#### 🔥 Feature Correlation
-![Heatmap](Visualization/correlation_heatmap.png)
+#### 🔥 Feature Correlation Heatmap  
+![Heatmap](Visualization/page_10_img_1.png)
 
-*Lag features and rolling averages were highly correlated with target price direction.*
+*Lag features like `Close_t-1` had nearly perfect correlation with `tomorrow_price`, motivating their use in modeling.*
 
 ---
 
 ### 3️⃣ Sentiment Analysis
 
-- Used **VADER** for short-form Wikipedia edits
-- Applied **BERT** for Guardian article sentiment
-- Engineered rolling 7-day and 30-day sentiment features
+We extracted sentiment using:
+- **VADER** for Wikipedia edit summaries  
+- **BERT** for Guardian news articles
 
-#### 💬 Sentiment Feature Distributions
-![Sentiment](Visualization/sentiment_distributions.png)
+Derived features included:
+- Composite sentiment score  
+- Rolling 7-day and 30-day averages  
+- Sentiment momentum (`s7 - s30`)
 
-*Composite rolling sentiment showed stronger correlation (≈0.60) with future prices than daily scores.*
+#### 💬 Sentiment Feature Distributions  
+![Sentiment](Visualization/Unknown-29.png)
 
 ---
 
 ### 4️⃣ Feature Engineering
 
-- Lag Features: `Close_t-1`, `Close_t-7`
-- Technical Indicators: RSI, MACD, Bollinger Bands
-- Sentiment Features: Rolling scores, momentum
-- Interaction Terms: `sentiment_7day × RSI_14`
-
-#### ⭐ XGBoost Feature Importance
-![Importance](Visualization/feature_importance.png)
+We created the following features:
+- Lagged prices: `Close_t-1`, `Close_t-7`
+- Technical indicators: RSI, MACD, Bollinger Bands
+- Sentiment momentum & interaction terms: `sentiment_7day × RSI_14`
 
 ---
 
@@ -86,12 +88,12 @@ All datasets were time-aligned by date and forward-filled to account for weekend
 
 | Model        | Task                   | Output             |
 |--------------|------------------------|--------------------|
-| XGBoost      | Classification (⬆️/⬇️) | Direction          |
+| XGBoost      | Classification (⬆️/⬇️) | Price Direction    |
 | LSTM         | Regression              | Next-Day Price     |
 
-- Addressed class imbalance using **SMOTE**
-- Used **80/20 train-test split** and **5-fold CV**
-- Applied MinMax scaling for LSTM input
+- Addressed imbalance with **SMOTE**  
+- 80/20 train-test split with 5-fold CV  
+- MinMax scaling applied for LSTM
 
 ---
 
@@ -104,10 +106,10 @@ All datasets were time-aligned by date and forward-filled to account for weekend
 
 ### 📉 LSTM Regressor
 - RMSE: **~78,000**
-- Performed well on capturing trend momentum
+- Captured trend momentum but underperformed due to price volatility
 
-#### 🎯 Actual vs Predicted Price
-![Prediction](Visualization/actual_vs_predicted.png)
+#### 🎯 Actual vs Predicted Price  
+![Prediction](Visualization/page_136_img_1.png)
 
 ---
 
@@ -121,5 +123,5 @@ cd Bitcoin-Prediction-Project
 # Install required libraries
 pip install -r requirements.txt
 
-# Launch notebook
+# Launch the notebook
 jupyter notebook notebooks/final_model_pipeline.ipynb
