@@ -120,4 +120,4 @@ cd Bitcoin-Prediction-Project
 pip install -r requirements.txt
 
 # Launch the final notebook
-Jupyter notebook notebooks/final_model_pipeline.ipynb
+jupyter notebook notebooks/final_model_pipeline.ipynb
