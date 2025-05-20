@@ -20,7 +20,7 @@ We use machine learning models such as **XGBoost** and **LSTM** in a hybrid setu
 |-------------------|-------------------------------------------------|
 | `notebooks/`      | Jupyter notebook for EDA and modeling           |
 | `data/`           | Cleaned and merged datasets                     |
-| `src/`            | Python scripts (optional modular components)    |
+| `src/`            | Scripts for EDA, modeling, and utility functions|
 | `Visualization/`  | Uploaded charts and key visuals used in README  |
 
 ---
@@ -28,18 +28,19 @@ We use machine learning models such as **XGBoost** and **LSTM** in a hybrid setu
 ## 🔗 Data Sources
 
 - 📈 **Bitcoin OHLCV Data** – Yahoo Finance (2019–2024)
-- 📰 **Guardian Articles** – ~250 scraped using The Guardian Open API
-- 📝 **Wikipedia Edits** – ~1200 records from Bitcoin-related pages
+- 📰 **Guardian Articles** – ~250 articles via Guardian Open API
+- 📝 **Wikipedia Edits** – ~1200 records scraped using the MediaWiki API
 
-All data was cleaned, merged by date, and forward-filled to account for non-trading days in sentiment streams.
+All datasets were time-aligned by date and forward-filled to account for weekends and missing values.
 
 ---
 
 ## 🔄 Process Flow
 
 ### 1️⃣ Data Cleaning & Preprocessing
-- Filled missing timestamps, removed duplicates.
-- Forward-filled sentiment gaps for non-trading days (weekends/holidays).
+- Filled gaps and forward-filled missing dates
+- Removed outliers and cleaned sentiment text
+- Merged all datasets on a common date index
 
 ### 2️⃣ Exploratory Data Analysis (EDA)
 
@@ -52,44 +53,45 @@ All data was cleaned, merged by date, and forward-filled to account for non-trad
 #### 🔥 Feature Correlation
 ![Heatmap](Visualization/correlation_heatmap.png)
 
-*Key Insight*: Lagged price (`Close_t-1`) had ~0.99 correlation with `tomorrow_price`, supporting its inclusion as a strong predictor.
+*Lag features and rolling averages were highly correlated with target price direction.*
 
 ---
 
 ### 3️⃣ Sentiment Analysis
 
-- VADER applied to short Wikipedia edit comments.
-- BERT used for full-length Guardian articles.
-- Daily sentiment scores were averaged and converted to rolling 7-day and 30-day signals.
+- Used **VADER** for short-form Wikipedia edits
+- Applied **BERT** for Guardian article sentiment
+- Engineered rolling 7-day and 30-day sentiment features
 
 #### 💬 Sentiment Feature Distributions
 ![Sentiment](Visualization/sentiment_distributions.png)
 
-*Insight*: Rolling sentiment scores had a **higher correlation (~0.60)** with price movement than raw daily sentiment.
+*Composite rolling sentiment showed stronger correlation (≈0.60) with future prices than daily scores.*
 
 ---
 
 ### 4️⃣ Feature Engineering
 
-- **Lag Features**: `Close_t-1`, `Close_t-7`
-- **Technical Indicators**: RSI, MACD, Bollinger Bands
-- **Sentiment**: 7-day, 30-day averages, momentum (`s7 - s30`)
-- **Interaction Terms**: `sentiment_7day × RSI_14`
+- Lag Features: `Close_t-1`, `Close_t-7`
+- Technical Indicators: RSI, MACD, Bollinger Bands
+- Sentiment Features: Rolling scores, momentum
+- Interaction Terms: `sentiment_7day × RSI_14`
 
 #### ⭐ XGBoost Feature Importance
 ![Importance](Visualization/feature_importance.png)
 
 ---
 
-### 5️⃣ Modeling Approach
+### 5️⃣ Modeling
 
 | Model        | Task                   | Output             |
 |--------------|------------------------|--------------------|
-| XGBoost      | Classification (⬆️/⬇️) | Price Direction    |
+| XGBoost      | Classification (⬆️/⬇️) | Direction          |
 | LSTM         | Regression              | Next-Day Price     |
 
-- Applied **SMOTE** to balance classes for XGBoost.
-- Used **80/20 train-test split** and **5-fold CV** for validation.
+- Addressed class imbalance using **SMOTE**
+- Used **80/20 train-test split** and **5-fold CV**
+- Applied MinMax scaling for LSTM input
 
 ---
 
@@ -102,7 +104,7 @@ All data was cleaned, merged by date, and forward-filled to account for non-trad
 
 ### 📉 LSTM Regressor
 - RMSE: **~78,000**
-- Captured price momentum but underperformed due to volatility.
+- Performed well on capturing trend momentum
 
 #### 🎯 Actual vs Predicted Price
 ![Prediction](Visualization/actual_vs_predicted.png)
@@ -116,8 +118,8 @@ All data was cleaned, merged by date, and forward-filled to account for non-trad
 git clone https://github.com/AlekhyaTentu/Bitcoin-Prediction-Project.git
 cd Bitcoin-Prediction-Project
 
-# Install required packages
+# Install required libraries
 pip install -r requirements.txt
 
-# Launch the final notebook
+# Launch notebook
 jupyter notebook notebooks/final_model_pipeline.ipynb
